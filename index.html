@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="de">
 
@@ -10,13 +11,21 @@
 
     <script>
         const supabaseUrl = 'https://ldedbfknquyvcwfiskqe.supabase.co';
-        const supabaseKey = 'DEIN_PUBLISHABLE_KEY';
+        const supabaseKey = 'sb_publishable_Zf0Elw3Z3cWEX4p_yRIECg_ow0FMi1q';
 
         const supabaseClient = supabase.createClient(
             supabaseUrl,
             supabaseKey
         );
     </script>
+
+    <style>
+        body {
+            background: #666;
+            color: white;
+            font-family: monospace;
+        }
+    </style>
 </head>
 
 <body>
@@ -30,9 +39,12 @@
     <p>AKTUELL ONLINE: <span id="online-count">0</span> PERSONEN</p>
 
     <script>
-       const visitorId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const visitorId =
+            Math.random().toString(36).substring(2) +
+            Date.now().toString(36);
 
         async function updatePresence() {
+
             await supabaseClient
                 .from('online_users')
                 .upsert({
@@ -40,16 +52,12 @@
                     last_seen: new Date().toISOString()
                 });
 
-            const thirtyMinutesAgo = new Date(
-                Date.now() - 30 * 60 * 1000
-            ).toISOString();
+            const { data, error } =
+                await supabaseClient.rpc('get_online_count');
 
-            const { count } = await supabaseClient
-                .from('online_users')
-                .select('*', { count: 'exact', head: true })
-                .gte('last_seen', thirtyMinutesAgo);
-
-            document.getElementById('online-count').textContent = count || 0;
+            if (!error) {
+                document.getElementById('online-count').textContent = data;
+            }
         }
 
         updatePresence();
@@ -60,3 +68,4 @@
 </body>
 
 </html>
+```
