@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANØXIC DAMAGE</title>
 
-<script>
-const supabaseUrl = 'https://ldedbfknquyvcwfiskqe.supabase.co';
-const supabaseKey = 'sb_publishable_Zf0Elw3Z3cWEX4p_yRIECg_ow0FMi1q';
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-const supabaseClient = supabase.createClient(
-    supabaseUrl,
-    supabaseKey
-);
-</script>
+    <script>
+        const supabaseUrl = 'https://ldedbfknquyvcwfiskqe.supabase.co';
+        const supabaseKey = 'DEIN_PUBLISHABLE_KEY';
+
+        const supabaseClient = supabase.createClient(
+            supabaseUrl,
+            supabaseKey
+        );
+    </script>
+</head>
+
 <body>
 
     <h1>ANØXIC DAMAGE</h1>
@@ -20,5 +27,36 @@ const supabaseClient = supabase.createClient(
 
     <p>SNAP BACK TO REALITY.</p>
 
+    <p>AKTUELL ONLINE: <span id="online-count">0</span> PERSONEN</p>
+
+    <script>
+        const visitorId = crypto.randomUUID();
+
+        async function updatePresence() {
+            await supabaseClient
+                .from('online_users')
+                .upsert({
+                    id: visitorId,
+                    last_seen: new Date().toISOString()
+                });
+
+            const thirtyMinutesAgo = new Date(
+                Date.now() - 30 * 60 * 1000
+            ).toISOString();
+
+            const { count } = await supabaseClient
+                .from('online_users')
+                .select('*', { count: 'exact', head: true })
+                .gte('last_seen', thirtyMinutesAgo);
+
+            document.getElementById('online-count').textContent = count || 0;
+        }
+
+        updatePresence();
+
+        setInterval(updatePresence, 30000);
+    </script>
+
 </body>
+
 </html>
